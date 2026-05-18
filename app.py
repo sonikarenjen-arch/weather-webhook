@@ -342,19 +342,37 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         ).join('');
       }
 
-      // Alerts table
+      // Alerts table — combine webhook fires and Slack posts
       const aBody = document.getElementById('alerts-body');
-      const alerts = status.recent_webhook_fires || [];
-      if (alerts.length === 0) {
+      const webhookAlerts = (status.recent_webhook_fires || []).map(a => ({
+        time: a.observed_at,
+        temp: a.temperature_c,
+        delta: a.delta_c,
+        webhook: true,
+        slack: false,
+      }));
+      const slackAlerts = (status.recent_slack_posts || []).map(s => ({
+        time: s.time,
+        temp: null,
+        delta: null,
+        webhook: false,
+        slack: true,
+        message: s.message,
+      }));
+      const allAlerts = [...webhookAlerts, ...slackAlerts]
+        .sort((a, b) => new Date(b.time) - new Date(a.time))
+        .slice(0, 10);
+
+      if (allAlerts.length === 0) {
         aBody.innerHTML = '<tr><td colspan="5">No alerts yet</td></tr>';
       } else {
-        aBody.innerHTML = [...alerts].reverse().map(a =>
+        aBody.innerHTML = allAlerts.map(a =>
           `<tr>
-            <td>${new Date(a.observed_at).toLocaleString()}</td>
-            <td>${a.temperature_c}°C</td>
-            <td>+${a.delta_c}°C</td>
-            <td><span class="badge fired">fired</span></td>
-            <td><span class="badge fired">posted</span></td>
+            <td>${new Date(a.time).toLocaleString()}</td>
+            <td>${a.temp !== null ? a.temp + '°C' : '—'}</td>
+            <td>${a.delta !== null ? '+' + a.delta + '°C' : '—'}</td>
+            <td>${a.webhook ? '<span class="badge fired">fired</span>' : '<span class="badge normal">—</span>'}</td>
+            <td>${a.slack ? '<span class="badge fired">posted</span>' : '<span class="badge normal">—</span>'}</td>
           </tr>`
         ).join('');
       }
