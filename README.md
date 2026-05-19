@@ -96,7 +96,7 @@ curl -X POST http://localhost:5000/trigger
 
 ## Deploying to Railway
 
-[Railway] was used to get my project publically accessible
+Railway was used to get my project publically accessible
 
 1. Code is pushed to a GitHub repo.
 2. Go to [railway.app](https://railway.app/) → **New Project** → **Deploy from GitHub repo**.
