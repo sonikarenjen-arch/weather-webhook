@@ -1,6 +1,6 @@
 # Weather → Webhook Integration
 
-Polls the [OpenWeatherMap](https://openweathermap.org/) API for the current temperature at a configured location. When the temperature rises by a configurable threshold between polls, it fires a [Zapier](https://zapier.com/) webhook with a structured payload. A small Flask server runs alongside the poller and exposes endpoints for live inspection and manual triggering.
+Polls the [OpenWeatherMap](https://openweathermap.org/) API for the current temperature at a configured location. When the temperature rises by a configurable threshold between polls, it posts an alert directly to a Slack channel and fires a Zapier webhook with a structured payload. A small Flask server runs alongside the poller and exposes endpoints for live inspection and manual triggering.
 
 ---
 
@@ -8,7 +8,7 @@ Polls the [OpenWeatherMap](https://openweathermap.org/) API for the current temp
 
 1. **Reads** the current temperature from OpenWeatherMap every `POLL_SECONDS` seconds.
 2. **Compares** it to the previous reading.
-3. **Writes** to Zapier — fires a webhook POST — when the temperature has risen by `INCREASE_C` °C or more.
+3. **Writes** to Zapier — fires a webhook POST — and alert to Slack when the temperature has risen by `INCREASE_C` °C or more.
 4. **Exposes** three HTTP endpoints so the integration can be inspected and triggered externally.
 
 ---
@@ -21,10 +21,10 @@ Polls the [OpenWeatherMap](https://openweathermap.org/) API for the current temp
 | `GET` | `/status` | Current state: last temp, last check time, recent webhook fires and errors |
 | `POST` | `/trigger` | Run a weather check right now and fire the webhook if the threshold is met |
 
-### Example — trigger manually
+### Example of manual trigger 
 
 ```bash
-curl -X POST https://your-deployment-url/trigger
+curl -X POST https://weather-webhook-production.up.railway.app/trigger
 ```
 
 Response (threshold not crossed):
@@ -50,7 +50,7 @@ Response (webhook fired):
 
 ---
 
-## Running locally
+## Running locally 
 
 ### 1. Clone and install dependencies
 
@@ -96,23 +96,23 @@ curl -X POST http://localhost:5000/trigger
 
 ## Deploying to Railway
 
-[Railway](https://railway.app/) is the fastest way to get this publicly accessible (free tier available).
+[Railway] was used to get my project publically accessible
 
-1. Push your code to a GitHub repo.
+1. Code is pushed to a GitHub repo.
 2. Go to [railway.app](https://railway.app/) → **New Project** → **Deploy from GitHub repo**.
-3. Select your repo. Railway auto-detects Python.
-4. Add environment variables under **Settings → Variables**:
+3. Python was used for repo
+4. Environment variables are added: 
    - `OWM_API_KEY`
    - `ZAPIER_WEBHOOK_URL`
    - `INCREASE_C` (optional, default `5.0`)
    - `POLL_SECONDS` (optional, default `1000`)
 5. Railway sets `PORT` automatically — the app reads it.
-6. Your public URL will be shown in the Railway dashboard (e.g. `https://your-app.up.railway.app`).
+6. Pulic URL: https://weather-webhook-production.up.railway.app/trigger
 
 ### Triggering over the web
 
 ```bash
-curl -X POST https://your-app.up.railway.app/trigger
+curl -X POST (https://weather-webhook-production.up.railway.app/trigger)
 ```
 
 ---
@@ -121,10 +121,10 @@ curl -X POST https://your-app.up.railway.app/trigger
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OWM_API_KEY` | *(required)* | OpenWeatherMap API key |
+| `OWM_API_KEY` | *(inputted)* | OpenWeatherMap API key |
 | `LAT` | `31.5204` | Latitude of the location to monitor |
 | `LON` | `74.3587` | Longitude of the location to monitor |
-| `ZAPIER_WEBHOOK_URL` | *(required)* | Zapier catch webhook URL |
+| `ZAPIER_WEBHOOK_URL` | *(inputted)* | Zapier catch webhook URL |
 | `INCREASE_C` | `5.0` | Temperature rise (°C) needed to fire the webhook |
 | `POLL_SECONDS` | `1000` | How often to poll OpenWeatherMap (~16 min) |
 | `PORT` | `5000` | Port the Flask server listens on |
