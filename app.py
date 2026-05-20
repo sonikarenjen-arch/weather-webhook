@@ -23,7 +23,7 @@ import requests
 from flask import Flask, jsonify
 
 # ---------------------------------------------------------------------------
-# Configuration
+# Configuration ( tells you if an env var is there ang gives alert if it is missing)
 # ---------------------------------------------------------------------------
 
 def _require(name: str) -> str:
@@ -46,7 +46,8 @@ WEATHER_URL = (
 )
 
 # ---------------------------------------------------------------------------
-# Shared in-memory state
+# Shared in-memory state 
+# lock needed because poller and web server are running simultaneously
 # ---------------------------------------------------------------------------
 _lock = threading.Lock()
 _state = {
@@ -63,7 +64,7 @@ app = Flask(__name__)
 
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Helpers (add entries to error log, webhook history, and Slack history)
 # ---------------------------------------------------------------------------
 
 def _log_error(msg: str) -> None:
@@ -85,6 +86,7 @@ def _log_slack(msg: str) -> None:
         _state["slack_history"].append(entry)
         _state["slack_history"] = _state["slack_history"][-10:]
 
+# get temperature from weather url or return error message 
 
 def fetch_temperature() -> tuple[float, dict]:
     r = requests.get(WEATHER_URL, timeout=10)
@@ -129,7 +131,7 @@ def post_to_slack(temp: float, previous_temp: float) -> None:
     resp.raise_for_status()
     _log_slack(text)
 
-
+# main function 
 def run_check() -> dict:
     """
     Fetch temperature, compare to previous reading, and fire alerts if
@@ -211,7 +213,7 @@ def run_check() -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Background polling loop
+# Background polling loop (check, log, wait, repeat)
 # ---------------------------------------------------------------------------
 
 def _polling_loop() -> None:
@@ -394,7 +396,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
-
+ # flask endpoints
 @app.get("/")
 def dashboard():
     """Live dashboard — auto-refreshes every 30 seconds."""
@@ -442,7 +444,7 @@ def trigger():
 
 
 # ---------------------------------------------------------------------------
-# Entry point
+# Entry point (start the poller in the background, then start the web server)
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
