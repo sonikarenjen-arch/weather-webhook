@@ -23,7 +23,7 @@ import requests
 from flask import Flask, jsonify
 
 # ---------------------------------------------------------------------------
-# Configuration ( tells you if an env var is there ang gives alert if it is missing)
+# Configuration ( tells you if an env var is there and gives alert if it is missing)
 # ---------------------------------------------------------------------------
 
 def _require(name: str) -> str:
