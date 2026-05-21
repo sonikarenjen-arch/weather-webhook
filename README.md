@@ -72,8 +72,11 @@ cp .env.example .env
 Or export them directly:
 
 ```bash
-export OWM_API_KEY=your_key_here
-export ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/hooks/catch/...
+export OWM_API_KEY= actual_key_here
+export ZAPIER_WEBHOOK_URL= actual_zapier_url
+export SLACK_WEBHOOK_URL= actual_slack_url
+export INCREASE_C=-1.0
+python3 app.py
 ```
 
 ### 3. Start the server
