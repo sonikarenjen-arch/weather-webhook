@@ -55,9 +55,11 @@ Response (webhook fired):
 ### 1. Clone and install dependencies
 
 ```bash
-git clone <your-repo-url>
-cd <repo-folder>
+git clone https://github.com/sonikarenjen-arch/weather-webhook.git
+cd weather-webhook
 pip install -r requirements.txt
+# or if pip isn't found:
+pip3 install -r requirements.txt
 ```
 
 ### 2. Configure environment variables
