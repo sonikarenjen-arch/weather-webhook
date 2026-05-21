@@ -344,27 +344,25 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         ).join('');
       }
 
-      // Alerts table — combine webhook fires and Slack posts
+      // Alerts table — match webhook and Slack by minute, merge into one row
       const aBody = document.getElementById('alerts-body');
-      const webhookAlerts = (status.recent_webhook_fires || []).map(a => ({
-        time: a.observed_at,
-        temp: a.temperature_c,
-        delta: a.delta_c,
-        webhook: true,
-        slack: false,
-      }));
-      const slackAlerts = (status.recent_slack_posts || []).map(s => ({
-        time: s.time,
-        temp: null,
-        delta: null,
-        webhook: false,
-        slack: true,
-        message: s.message,
-      }));
-      const allAlerts = [...webhookAlerts, ...slackAlerts]
-        .sort((a, b) => new Date(b.time) - new Date(a.time))
-        .slice(0, 10);
-
+      const webhookMap = {};
+      (status.recent_webhook_fires || []).forEach(a => {
+        const key = new Date(a.observed_at).toISOString().slice(0, 16);
+        webhookMap[key] = a;
+      });
+      const allAlerts = (status.recent_slack_posts || []).map(s => {
+        const key = new Date(s.time).toISOString().slice(0, 16);
+        const webhook = webhookMap[key];
+        return {
+          time: s.time,
+          temp: webhook ? webhook.temperature_c : null,
+          delta: webhook ? webhook.delta_c : null,
+          webhook: !!webhook,
+          slack: true,
+        };
+      }).sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 10);
+      
       if (allAlerts.length === 0) {
         aBody.innerHTML = '<tr><td colspan="5">No alerts yet</td></tr>';
       } else {
