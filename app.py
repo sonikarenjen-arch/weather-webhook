@@ -47,7 +47,7 @@ WEATHER_URL = (
 
 # ---------------------------------------------------------------------------
 # Shared in-memory state 
-# lock needed because poller and web server are running simultaneously
+# lock needed because poller and web server are running simultaneously (state is an internal dictionary)
 # ---------------------------------------------------------------------------
 _lock = threading.Lock()
 _state = {
@@ -143,7 +143,7 @@ def run_check() -> dict:
     try:
         temp, raw = fetch_temperature()
     except requests.exceptions.Timeout:
-        msg = "OpenWeather request timed out after 10s"
+        msg = "OpenWneather request timed out after 10s"
         result["error"] = msg
         _log_error(msg)
         return result
