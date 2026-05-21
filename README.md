@@ -9,7 +9,7 @@ Polls the [OpenWeatherMap](https://openweathermap.org/) API for the current temp
 1. **Reads** the current temperature from OpenWeatherMap every `POLL_SECONDS` seconds.
 2. **Compares** it to the previous reading.
 3. **Writes** to Zapier by firing a webhook POST and alert to Slack when the temperature has risen by `INCREASE_C` °C or more.
-4. **Exposes** three HTTP endpoints so the integration can be inspected and triggered externally.
+4. **Exposes** 4 HTTP endpoints so the integration can be inspected and triggered externally.
 
 ---
 
@@ -18,7 +18,8 @@ Polls the [OpenWeatherMap](https://openweathermap.org/) API for the current temp
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/health` | Liveness probe — returns `{"status": "ok"}` |
-| `GET` | `/status` | Current state: last temp, last check time, recent webhook fires and errors |
+| `GET` | `/status` | Returns full current state as JSON; last & previous temp, threshold, alerts and errors.|
+| `GET` | `/history` | Returns the last 20 temperature readings as JSON — timestamp and temperature for each. |
 | `POST` | `/trigger` | Run a weather check right now and fire the webhook if the threshold is met |
 
 ### Example of manual trigger 
