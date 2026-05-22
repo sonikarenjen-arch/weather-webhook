@@ -139,7 +139,7 @@ def run_check() -> dict:
     """
     result: dict = {"checked_at": datetime.now(timezone.utc).isoformat()}
 
-    # --- Fetch temperature ---------------------------------------------------
+    # --- Fetch temperature (incorporates Timeout, HTTPError, RequestException, ValueError issues)---------------------------------------------------
     try:
         temp, raw = fetch_temperature()
     except requests.exceptions.Timeout:
